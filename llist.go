@@ -1,5 +1,5 @@
 /*
-Package llist encapsulates a double linked list based on github.com/KarelKubat/lnode and provides handy methods plus lookups by value.
+Package llist encapsulates a double linked list based on github.com/KarelKubat/lnode and provides handy methods plus lookups by value. All methods run in O(1) time complexity (e.g., finding the head or tail, and looking up nodes by value).
 */
 package llist
 
