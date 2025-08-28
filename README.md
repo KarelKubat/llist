@@ -103,7 +103,7 @@ func main() {
 
     // Change all nodes with "lazy" to "quick" (in this example just one)
     for _, node := range l.FindNodes("lazy") {
-        l.SetValue(node, "quick")
+        node.SetValue(node, "quick")
     }
     print("Lazy is now quick", l)
 }
