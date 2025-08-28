@@ -125,8 +125,8 @@ Package `llist` doesn't hide that it internally uses `lnode`s. But. In the event
 ```go
 // Example: changing a node's value directly
 for _, node := range l.FindNodes("lazy") {
-	// Directly change the value, not using llist's method l.SetValue(node, "quick")
-	node.Value = "quick"
+    // Directly change the value, not using llist's method l.SetValue(node, "quick")
+    node.Value = "quick"
 }
 // l.FindNodes("quick") won't return correct results
 l.FixCounts() // Rebuild the internal map
