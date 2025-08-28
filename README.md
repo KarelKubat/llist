@@ -6,6 +6,7 @@
 - [Purpose](#purpose)
 - [Synopsis](#synopsis)
 - [Description](#description)
+  - [Don't break the encapsulation: use <code>llist</code>'s methods](#dont-break-the-encapsulation-use-llists-methods)
 <!-- /toc -->
 
 ## Purpose
@@ -17,15 +18,12 @@ Package `llist` encapsulates the double linked list of [github.com/KarelKubat/ln
 
 Inserting or deleting nodes, and changing the value of a given node, has already O(1) time complexity in the internally contained `lnode`s.
 
-My application for this is that I needed an LRU (Least Recently Used) memory cache of fixed size, where all operations would run in O(1) time complexity:
-
-- Most recent entries are at the head of the list, least recent at the tail
-- Lookups and deletes (evictions) are lightning fast.
-
 Having O(1) time complexity for all operations has drawbacks:
 
 - `llist` has to duplicate a linked list, but rearranged as a map. This effectively duplicates the memory requirement.
-- Inserting nodes, or deleting, or changing the values must occur through `llist`'s methods, so that the internal administration is kept up to date. These actions must not be performoed by directly manipulating the `lnode`'s fields `Next`, `Prev` and `Value` (or by using the corresponding `lnode`'s methods).
+- Inserting nodes, or deleting, or changing the values must occur through `llist`'s methods, so that the internal administration is kept up to date. These actions must not be performed by directly manipulating the `lnode`'s fields `Next`, `Prev` and `Value` (or by using the corresponding `lnode`'s methods).
+
+> My application for this is that I needed an LRU (Least Recently Used) memory cache of fixed size, where all operations would run in O(1) time complexity. The LRU cache can implement this using `llist`:  Most recent entries can be kept at the head of the list, least recent at the tail. Lookups and deletes (evictions) are lightning fast given that `llist` runs at O(1).
 
 **Package `llist` is not thread-safe. The caller must ensure that concurrent updates are mutex-protected.**
 
@@ -117,7 +115,29 @@ func main() {
 - `FindNodes()` returns a list of nodes that match a value.
 - `SetValue()` modifies the value of a given node.
 
-Package `llist` doesn't hide that it internally uses `lnode`s. In the event that some of `lnode`s methods are used, instead of `llist`'s alternatives, then the internal administration of `llist` can be rebuilt:
+### Don't break the encapsulation: use `llist`'s methods
+
+Package `llist` doesn't hide that it internally uses `lnode`s. But. In the event that some of `lnode`s methods are used (or fields are directly modified) instead of `llist`'s alternatives, then the internal administration of `llist` can be rebuilt:
 
 - `FixHead()` and `FixTail()` recompute the head and tail nodes
 - `FixCounts()` recomputes the internal map that's used by `FindNodes()`.
+
+```go
+// Example: changing a node's value directly
+for _, node := range l.FindNodes("lazy") {
+	// Directly change the value, not using llist's method l.SetValue(node, "quick")
+	node.Value = "quick"
+}
+// l.FindNodes("quick") won't return correct results
+l.FixCounts() // Rebuild the internal map
+// l.FindNodes("quick") will now return correct results
+
+// Example: inserting at head without telling llist
+// Instead, it would be better to: l.Head().Prepend(lnode.New[string]("yesterday"))
+node := lnode.New[string]("yesterday")
+l.Head().Prev = node
+node.Next = l.Head()
+// l.Head() will still return the old head, not the "yesterday" node
+l.FixHead() // Recompute the head
+// l.Head() will now correctly return the chain start
+```
