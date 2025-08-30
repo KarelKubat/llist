@@ -40,6 +40,20 @@ func TestPrepend(t *testing.T) {
 	}
 }
 
+func TestEmptyPrepend(t *testing.T) {
+	l := New[int]()
+	for i := range 10 {
+		l.Prepend(l.Head(), lnode.New[int](i))
+	}
+	want := 9
+	for n := l.Head(); n != nil; n = n.Next {
+		if n.Value != want {
+			t.Errorf("TestEmptyPrepend: while iterating got value %d, want %d", n.Value, want)
+		}
+		want--
+	}
+}
+
 func TestFixHead(t *testing.T) {
 	l := mkList()
 	hd := l.Head()

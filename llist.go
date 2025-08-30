@@ -70,6 +70,15 @@ func (l *LList[V]) Tail() *lnode.Node[V] {
 Append inserts the named node "after" (or "to the right") of the anchor and, if necessary adjusts the tail value. Either Append() or Prepend() can be used to initialize an empty LList.
 
 Note that using the node's Append() (lnode.Append()) bypasses the internal administration of llist. The head or tail position, and internal pointers (used in llist.FindNodes()) will not be updated. Re-fixing these can be done using FixHead(), FixTail() and FixCounts().
+
+Append() and Tail() can be used to build a list from left to right:
+
+	l := New[string]()
+	for _, s := range []string{"the", "quick", "brown", "fox"} {
+		l.Append(l.Tail(), lnode.New[string](s))
+	}
+	fmt.Println(l.Head().Value)  // "the"
+	fmt.Println(l.Tail().Value)  // "fox"
 */
 func (l *LList[V]) Append(anchor, n *lnode.Node[V]) {
 	if l.head == nil {
@@ -88,6 +97,15 @@ func (l *LList[V]) Append(anchor, n *lnode.Node[V]) {
 Prepend inserts the named node "before" (or "to the left") of the anchor, and, if necessary adjust the head value. Either Append() or Prepend() can be used to initialize an empty LList.
 
 Note that using the node's Append() (lnode.Append()) bypasses the internal administration of llist. The head or tail position, and internal pointers (used in llist.FindNodes()) will not be updated. Re-fixing these can be done using FixHead(), FixTail() and FixCounts().
+
+Prepend() and Head() can be used to build a list from right to left:
+
+	l := New[string]()
+	for _, s := range []string{"the", "quick", "brown", "fox"} {
+		l.Prepend(l.Head(), lnode.New[string](s))
+	}
+	fmt.Println(l.Head().Value)  // "fox"
+	fmt.Println(l.Tail().Value)  // "the"
 */
 func (l *LList[V]) Prepend(anchor, n *lnode.Node[V]) {
 	switch {
